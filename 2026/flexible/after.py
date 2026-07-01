@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from decimal import Decimal
 from enum import StrEnum
 
 from pydantic import BaseModel, Field
@@ -16,14 +17,14 @@ class SeatType(StrEnum):
 
 @dataclass(frozen=True)
 class Money:
-    amount: float
+    amount: Decimal
 
     def __post_init__(self) -> None:
-        if self.amount < 0:
+        if self.amount < Decimal("0"):
             raise ValueError("Money cannot be negative")
 
-    def discounted(self, percentage: float) -> "Money":
-        return Money(self.amount * (1 - percentage))
+    def discounted(self, percentage: Decimal) -> "Money":
+        return Money(self.amount * (Decimal("1") - percentage))
 
 
 @dataclass(frozen=True)
@@ -53,7 +54,7 @@ class BookingRequest:
 class BookingInput(BaseModel):
     passenger_name: str
     flight_number: str
-    price: float = Field(gt=0)
+    price: Decimal = Field(gt=0)
     status: FlightStatus
     loyalty: bool = False
     seat: SeatType = SeatType.STANDARD
@@ -76,7 +77,7 @@ class BookingInput(BaseModel):
 def create_booking(request: BookingRequest) -> None:
     request.flight.ensure_bookable()
 
-    discount = 0.10 if request.passenger.has_loyalty else 0
+    discount = Decimal("0.10") if request.passenger.has_loyalty else Decimal("0")
     total = request.flight.price.discounted(discount)
 
     print(
@@ -87,15 +88,14 @@ def create_booking(request: BookingRequest) -> None:
     )
 
 
-booking = BookingInput.model_validate(
-    {
-        "passenger_name": "Ada",
-        "flight_number": "AC123",
-        "price": 250,
-        "status": "scheduled",
-        "loyalty": True,
-        "seat": "extra_legroom",
-    }
-).to_domain()
+raw_data = {
+    "passenger_name": "Ada",
+    "flight_number": "AC123",
+    "price": "250.00",
+    "status": "scheduled",
+    "loyalty": True,
+    "seat": "extra_legroom",
+}
 
+booking = BookingInput.model_validate(raw_data).to_domain()
 create_booking(booking)
