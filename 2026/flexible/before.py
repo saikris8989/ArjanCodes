@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Any
 
 
@@ -5,8 +6,10 @@ def create_booking(data: dict[str, Any], **kwargs: Any) -> None:
     if data["status"] == "cancelled":
         raise ValueError("Flight cancelled")
 
-    discount = 0.10 if data.get("loyalty") else 0
-    total = data["price"] * (1 - discount)
+    price = Decimal(data["price"])
+
+    discount = Decimal("0.10") if data.get("loyalty") else Decimal("0")
+    total = price * (Decimal("1") - discount)
 
     print(
         f"Booked {data['flight_number']} "
@@ -17,11 +20,10 @@ def create_booking(data: dict[str, Any], **kwargs: Any) -> None:
 
 
 def main() -> None:
-
     booking = {
         "passenger_name": "Ada",
         "flight_number": "AC123",
-        "price": 250,
+        "price": "250.00",
         "status": "scheduled",
         "loyalty": True,
     }

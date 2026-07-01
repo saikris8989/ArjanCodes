@@ -88,14 +88,19 @@ def create_booking(request: BookingRequest) -> None:
     )
 
 
-raw_data = {
-    "passenger_name": "Ada",
-    "flight_number": "AC123",
-    "price": "250.00",
-    "status": "scheduled",
-    "loyalty": True,
-    "seat": "extra_legroom",
-}
+def main() -> None:
+    raw_data = {
+        "passenger_name": "Ada",
+        "flight_number": "AC123",
+        "price": "250.00",
+        "status": "scheduled",
+        "loyalty": True,
+        "seat": "extra_legroom",
+    }
 
-booking = BookingInput.model_validate(raw_data).to_domain()
-create_booking(booking)
+    booking = BookingInput.model_validate(raw_data).to_domain()
+    create_booking(booking)
+
+
+if __name__ == "__main__":
+    main()
